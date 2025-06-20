@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>抽卡页面</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .top {
+      flex: 1;
+      background: #f4f4f4;
+      padding: 20px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+    }
+
+    .bottom {
+      flex: 2;
+      background: #fff;
+      overflow-y: auto;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .draw-button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-bottom: 20px;
+      background-color: #007bff;
+      border: none;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .card-list, .owned-list {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .card {
+  width: 160px;
+  height: 240px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #e8e8e8, #ffffff);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: transform 0.3s;
+}
+
+.card-title {
+  flex: 1;
+  background: #333;
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  text-align: center;
+}
+
+/* ✅ .card.barbarian 内的 .card-title 背景色 */
+.card.barbarian .card-title {
+  background: #8B0000;
+}
+.card.bard .card-title {
+  background: #ADD8E6;
+}
+.card.cleric .card-title {
+  background: #FFD700;
+}
+.card.druid .card-title {
+  background: #006400;
+}
+
+.card.fighter .card-title {
+  background: #696969;
+}
+
+.card.monk .card-title {
+  background: #C1DDC1;
+}
+.card.paladin .card-title {
+  background: #FFA500;
+}
+.card.ranger .card-title {
+  background: #90EE90;
+}
+.card.sorcerer .card-title {
+  background: #FF00FF;
+}
+.card.warlock .card-title {
+  background:  #4B0082
+}
+.card.wizard .card-title {
+  background: #0000CD;
+}
+.card.roger .card-title {
+  background: #2F4F4F;
+}
+
+
+
+
+.card-desc {
+  flex: 3;
+  font-size: 14px;
+  padding: 12px;
+  color: #444;
+  background-color: #fefefe;
+  text-align: left;
+  line-height: 1.4;
+
+  max-height: 120px;         /* ✅ 限高 */
+  overflow-y: auto;          /* ✅ 超出时滚动 */
+  scrollbar-width: thin;     /* Firefox */
+}
+
+    .card:hover {
+      transform: scale(1.05);
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 18px;
+      margin: 10px 0;
+    }
+  </style>
+
+    <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  />
+
+</head>
+<body>
+  
+    
+  <h1>hello，<%= username %> , 第<%= userId %> 号用户。</h1>
+  
+
+
+  <!-- 上半部分 -->
+  <div class="top">
+    <button class="draw-button" id="draw-btn">点击抽卡</button>
+    <button class="draw-button" id="card-num">剩余抽卡次数<%= userRes %></button>
+
+    <div class="section-title">你抽到的卡牌：</div>
+    <div class="card-list" id="drawn-cards">
+      <!-- 动态插入卡片 -->
+    </div>
+  </div>
+
+  <!-- 下半部分 -->
+  <div class="bottom">
+    <div class="section-title">你拥有的所有卡牌：</div>
+    <div class="owned-list" id="owned-cards">
+      <!-- 用户已有卡牌展示 -->
+    </div>
+  </div>
+
+  <script>
+
+   console.log();
+
+  document.getElementById('draw-btn').addEventListener('click', drawCards);
+
+// 抽卡功能
+  async function drawCards() {
+   
+
+  const res = await fetch('/users/draw', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({"userId":<%= userId%>})
+  });
+   
+  const data = await res.json();
+  if (data.success && Array.isArray(data.cards)) {
+    const cardList = document.getElementById('drawn-cards');
+    cardList.innerHTML = '';
+    data.cards.forEach(card => {
+    const div = document.createElement('div');
+    div.classList.add('card');
+    div.classList.add(card.type);
+
+
+ 
+
+
+
+
+         // 创建标题元素
+      const title = document.createElement('div');
+      title.classList.add('card-title');
+
+
+            //创建一个图标元素
+      const icon = document.createElement('i');
+      // 因为从数据库拉出的字符串，不能直接作为class，（中间有空格，classList.add不识别），所以进行如下操作。
+      const iconClasses = card.icon.split(' ');
+      icon.classList.add(...iconClasses); 
+      icon.style.marginRight = '6px'; // 可选：让图标和文字之间留点距离
+
+     // 创建文字节点
+     const nameText = document.createTextNode(card.name);
+   
+      // 插入图标和文字
+      title.appendChild(icon);
+      title.appendChild(nameText);
+ 
+
+    
+      // 创建描述元素
+      const desc = document.createElement('div');
+      desc.classList.add('card-desc');
+      desc.innerText = card.description;
+   
+      
+
+      // 组装结构
+      div.appendChild(title);
+      div.appendChild(desc);
+      
+
+    div.onclick = () => chooseCard(card.card_id, data.cards.map(c => c.card_id));
+    cardList.appendChild(div);
+   }); 
+
+   }  
+
+ loadUserRes(); // 都执行完毕之后，更新一下状态
+}
+
+// 三选一卡牌
+
+async function chooseCard(chosenId, allIds) {
+  const res = await fetch('/users/choose', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      userId: <%= userId%>,
+      chosenCardId: chosenId,
+      allCardIds: allIds
+    })
+  }).then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      // ✅ 添加新获得的卡牌到“拥有卡牌区域”
+      const ownedList = document.getElementById('owned-cards');
+      const newCard = document.createElement('div');
+      newCard.classList.add('card'); // 用相同样式显示
+    //   newCard.classList.add(data.card.type)
+     newCard.classList.add(data.card.type);
+
+         // 创建标题元素
+      const title = document.createElement('div');
+      title.classList.add('card-title');
+
+            //创建一个图标元素
+      const icon = document.createElement('i');
+      // 因为从数据库拉出的字符串，不能直接作为class，（中间有空格，classList.add不识别），所以进行如下操作。
+      const iconClasses = data.card.icon.split(' ');
+      icon.classList.add(...iconClasses); 
+      icon.style.marginRight = '6px'; // 可选：让图标和文字之间留点距离
+
+     // 创建文字节点
+     const nameText = document.createTextNode(data.card.name);
+   
+      // 插入图标和文字
+      title.appendChild(icon);
+      title.appendChild(nameText);
+     
+      // 创建描述元素
+      const desc = document.createElement('div');
+      desc.classList.add('card-desc');
+      desc.innerText = data.card.description;
+
+      // 组装结构
+      newCard.appendChild(title);
+      newCard.appendChild(desc); 
+
+      ownedList.appendChild(newCard);
+
+      // ✅ 可选：清空抽卡区域
+      document.getElementById('drawn-cards').innerHTML = '';
+
+
+     console.log(data);
+
+    } else {
+      alert('发生错误：' + data.message);
+    }
+  });
+
+//   const data = await res.json();
+//   if (data.success) {
+//     alert('你选中了卡牌！');
+//     document.getElementById('drawn-cards').innerHTML = '';
+//   }
+}
+
+
+
+
+  // 页面加载后自动请求用户已有卡牌 （展示卡牌）
+  window.addEventListener('DOMContentLoaded', () => {
+    fetch(`/users/owned?userId=<%= userId%>`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          const ownedList = document.getElementById('owned-cards');
+          ownedList.innerHTML = ''; // 清空旧卡牌
+
+          data.cards.forEach(card => {
+            const div = document.createElement('div');
+            div.classList.add('card');     // ✅ 样式统一
+            div.classList.add(card.type);
+
+
+ 
+
+
+
+
+         // 创建标题元素
+      const title = document.createElement('div');
+      title.classList.add('card-title');
+
+
+            // 创建一个图标元素
+      const icon = document.createElement('i');
+      // 因为从数据库拉出的字符串，不能直接作为class，（中间有空格，classList.add不识别），所以进行如下操作。
+
+     if (card.icon) {
+         const iconClasses = card.icon.split(' ');
+         icon.classList.add(...iconClasses);
+         icon.style.marginRight = '6px'; // 可选：让图标和文字之间留点距离
+      }
+
+
+
+
+     // 创建文字节点
+     const nameText = document.createTextNode(card.name);
+   
+      // 插入图标和文字
+      title.appendChild(icon);
+      title.appendChild(nameText);
+ 
+
+    
+      // 创建描述元素
+      const desc = document.createElement('div');
+      desc.classList.add('card-desc');
+      desc.innerText = card.description;
+   
+       
+             // 组装结构
+            div.appendChild(title);
+            div.appendChild(desc);  
+            
+            ownedList.appendChild(div);
+          });
+        } else {
+          console.warn('加载用户卡牌失败：', data.message);
+        }
+      })
+      .catch(err => {
+        console.error('网络请求失败：', err);
+      });
+  });
+   
+  // 刷新用户可以抽卡的次数
+  function loadUserRes() {
+    fetch(`/users/res?userId=<%= userId %>`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById('card-num').innerText = `剩余抽卡次数：${data.userRes}`;
+        }
+      });
+  }
+
+  setInterval(loadUserRes, 10000);
+
+
+  </script>
+
+</body>
+</html>

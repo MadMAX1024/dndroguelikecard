@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>用户系统</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      display: flex;
+      justify-content: center;
+      padding-top: 60px;
+    }
+
+    .container {
+      width: 400px;
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #ccc;
+      margin-bottom: 20px;
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      background: #eee;
+      transition: 0.3s;
+    }
+
+    .tab.active {
+      background: white;
+      border-bottom: 2px solid #333;
+    }
+
+    form {
+      display: none;
+    }
+
+    form.active {
+      display: block;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #333;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #555;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="tabs">
+      <div class="tab active" id="login-tab">登录</div>
+      <div class="tab" id="register-tab">注册</div>
+    </div>
+
+    <!-- 登录表单 -->
+    <form id="login-form" class="active" action="/users/login" method="post">
+      <label for="login-username">用户名：</label>
+      <input type="text" id="login-username" name="username" required>
+
+      <label for="login-password">密码：</label>
+      <input type="password" id="login-password" name="password" required>
+
+      <button type="submit">登录</button>
+    </form>
+
+    <!-- 注册表单 -->
+    <form id="register-form" action="/users/register" method="post">
+      <label for="register-username">用户名：</label>
+      <input type="text" id="register-username" name="username" required>
+
+      <label for="register-password">密码：</label>
+      <input type="password" id="register-password" name="password" required>
+
+      <label for="confirm-password">确认密码：</label>
+      <input type="password" id="confirm-password" name="confirm" required>
+
+      <button type="submit">注册</button>
+    </form>
+  </div>
+
+  <script>
+    const loginTab = document.getElementById('login-tab');
+    const registerTab = document.getElementById('register-tab');
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+
+    loginTab.addEventListener('click', () => {
+      loginTab.classList.add('active');
+      registerTab.classList.remove('active');
+      loginForm.classList.add('active');
+      registerForm.classList.remove('active');
+    });
+
+    registerTab.addEventListener('click', () => {
+      registerTab.classList.add('active');
+      loginTab.classList.remove('active');
+      registerForm.classList.add('active');
+      loginForm.classList.remove('active');
+    });
+  </script>
+</body>
+</html>

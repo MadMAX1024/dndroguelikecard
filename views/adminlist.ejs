@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>管理员列表</title>
+  <style>
+    table { border-collapse: collapse; width: 80%; margin: 20px auto; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background-color: #f2f2f2; }
+  </style>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+  />
+</head>
+<body>
+
+
+
+  <div class="tab-buttons" style="text-align:center; margin-top:20px;">
+  <button id="user-tab" class="tab active">用户管理</button>
+  <button id="card-tab" class="tab"><i class="fa-solid fa-wand-magic-sparkles"></i>卡牌管理</button>
+  </div>  
+
+
+  <!-- 用户管理区域（你的 EJS 原有内容） -->
+<div id="user-section">
+     <h2 style="text-align:center;">用户列表</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>用户名</th>
+        <th>密码</th>
+        <th>抽取次数</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (results.length === 0) { %>
+        <tr><td colspan="3">暂无数据</td></tr>
+      <% } else { %>
+        <% results.forEach(user => { %>
+          <tr>
+            <td><%= user.id %></td>
+            <td><%= user.userName %></td>
+            <td><%= user.userPwd %></td>
+            <td><%= user.userRes %></td>
+            <td>
+              <button class="delete-btn" data-id="<%= user.id %>">删除</button>
+              <button class="add-btn" data-id="<%= user.id %>">增加</button>
+            </td>
+          </tr>
+        <% }) %>
+      <% } %>
+    </tbody>
+  </table>
+
+</div>
+
+<!-- 卡牌管理区域（初始隐藏） -->
+<div id="card-section" style="display: none; text-align: center;">
+  <h2>卡牌管理页面</h2>
+  <button class="btn" id="btn-restore"> 一键补充所有卡牌 </button>
+  <!-- 你可以在这里添加卡牌管理功能，如新增卡牌、编辑、删除等 -->
+</div>
+
+
+
+
+<script>
+    
+    
+    document.querySelector('#btn-restore').addEventListener('click',()=>{
+     fetch('/admin/restore/').then(res=>res.json()).then(data=>{if(data.success){
+        alert('卡牌已经全部添加入库');
+     }}).catch(err=>{alert('全部补充失败！')})
+    
+
+    } )
+    
+
+    
+    
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const userId = btn.dataset.id;
+
+      const confirmed = confirm(`确定要删除用户 ID 为 ${userId} 的记录吗？`);
+
+      if (!confirmed) return;  // 如果取消，则不执行
+
+      try {
+        const res = await fetch('/admin/delete/' + userId, {
+          method: 'DELETE' 
+        });
+        const text = await res.text();
+        alert(text);
+        location.reload();  // 删除后刷新页面
+      } catch (err) {
+        alert('删除失败：' + err.message);
+      }
+    });
+  });
+
+   document.querySelectorAll('.add-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const userId = btn.dataset.id;
+
+      const confirmed = confirm(`确定要增加用户 ID 为 ${userId} 的记录吗？`);
+
+      if (!confirmed) return;  // 如果取消，则不执行
+
+      try {
+        const res = await fetch('/admin/add/' + userId, {
+          method: 'POST' 
+        });
+        const text = await res.text();
+        alert(text);
+        location.reload();  // 删除后刷新页面
+      } catch (err) {
+        alert('添加失败：' + err.message);
+      }
+    });
+  });
+
+</script>
+
+<script>
+  const userTab = document.getElementById('user-tab');
+  const cardTab = document.getElementById('card-tab');
+  const userSection = document.getElementById('user-section');
+  const cardSection = document.getElementById('card-section');
+
+  userTab.addEventListener('click', () => {
+    userTab.classList.add('active');
+    cardTab.classList.remove('active');
+    userSection.style.display = 'block';
+    cardSection.style.display = 'none';
+  });
+
+  cardTab.addEventListener('click', () => {
+    cardTab.classList.add('active');
+    userTab.classList.remove('active');
+    cardSection.style.display = 'block';
+    userSection.style.display = 'none';
+  });
+</script>
+
+</body>
+
+</html>
